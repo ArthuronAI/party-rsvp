@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>RSVP Admin</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 2rem;
+      color: #222;
+    }
+
+    .card {
+      max-width: 420px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      padding: 1rem 1.25rem;
+    }
+
+    .stat {
+      margin: 0.5rem 0;
+      font-size: 1.05rem;
+    }
+
+    #status {
+      margin-top: 1rem;
+      color: #555;
+    }
+  </style>
+</head>
+<body>
+  <main class="card">
+    <h1>Admin Dashboard</h1>
+    <p class="stat">YES: <span id="yesCount">0</span></p>
+    <p class="stat">NO: <span id="noCount">0</span></p>
+    <p class="stat">Total: <span id="totalCount">0</span></p>
+    <p id="status">Loading...</p>
+  </main>
+
+  <script>
+    async function loadResponses() {
+      const statusEl = document.getElementById('status');
+
+      try {
+        const res = await fetch('/api/responses/test123', {
+          headers: {
+            'Accept': 'application/json',
+          },
+        });
+
+        if (!res.ok) {
+          throw new Error(`Request failed with status ${res.status}`);
+        }
+
+        const data = await res.json();
+        const responses = Array.isArray(data.responses) ? data.responses : [];
+
+        const yesCount = responses.filter((item) => item.response === 'yes').length;
+        const noCount = responses.filter((item) => item.response === 'no').length;
+
+        document.getElementById('yesCount').textContent = String(yesCount);
+        document.getElementById('noCount').textContent = String(noCount);
+        document.getElementById('totalCount').textContent = String(responses.length);
+        statusEl.textContent = 'Loaded.';
+      } catch (error) {
+        statusEl.textContent = `Failed to load responses: ${error.message}`;
+      }
+    }
+
+    loadResponses();
+  </script>
+</body>
+</html>
